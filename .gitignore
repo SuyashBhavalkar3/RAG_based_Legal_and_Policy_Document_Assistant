@@ -1,0 +1,57 @@
+# =========================
+# Environment files
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+venv/
+
+# =========================
+# Node / Frontend (if any)
+# =========================
+node_modules/
+dist/
+build/
+
+# =========================
+# Backend specific
+# =========================
+backend/env/
+backend/.env
+backend/.env.*
+backend/node_modules/
+backend/dist/
+
+# =========================
+# Logs
+# =========================
+*.log
+
+# =========================
+# OS / Editor files
+# =========================
+.DS_Store
+.DS_Store?
+Thumbs.db
+.vscode/
+.idea/
+
+# =========================
+# Temporary / cache
+# =========================
+*.tmp
+*.swp
+.cache/
+
+backend/users.db
+backend/*.db
