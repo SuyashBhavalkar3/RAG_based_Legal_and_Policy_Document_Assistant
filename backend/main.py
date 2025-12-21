@@ -1,5 +1,4 @@
-import os
-import uuid
+import os, uvicorn, uuid
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -228,26 +227,6 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
 
 MAX_HISTORY = 10  # last N messages
 
-# @app.post("/ask/{conversation_id}")
-# def ask_with_history(conversation_id: int, prompt_request: PromptRequest, db: Session = Depends(get_db)):
-#     convo = db.query(Conversation).filter(Conversation.id == conversation_id).first()
-#     if not convo:
-#         raise HTTPException(status_code=404, detail="Conversation not found")
-
-#     # Build prompt using chat history only
-#     prompt = build_prompt_with_history(conversation_id, prompt_request.prompt, db)
-
-#     # Get model response
-#     answer = ask_model(prompt)
-
-#     # Store messages
-#     user_msg = Message(conversation_id=conversation_id, role="user", content=prompt_request.prompt)
-#     assistant_msg = Message(conversation_id=conversation_id, role="assistant", content=answer)
-#     db.add_all([user_msg, assistant_msg])
-#     db.commit()
-
-#     return {"response": answer}
-
 @app.post("/ask/{conversation_id}")
 def ask_with_history(
     conversation_id: int,
@@ -362,3 +341,7 @@ async def ask_pdf_with_history(
     db.commit()
 
     return {"answer": answer}
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("drowsiness:app", host="0.0.0.0", port=port)
