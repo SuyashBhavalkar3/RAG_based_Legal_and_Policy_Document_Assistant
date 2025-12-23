@@ -2,16 +2,31 @@ import os
 from pathlib import Path
 from PyPDF2 import PdfReader
 import docx
+import argparse
 from embeddings import embed_texts
 from vectorstore import VectorStore
+from dotenv import load_dotenv
+from utils import chunk_text
 
-# Path to your docs folder
-DOCS_DIR = Path("docs")  # adjust if needed
-VECTORSTORE_PATH = Path("vectorstore")  # where vectors will be saved
+# Load environment variables from .env (for OpenAI keys, VECTORSTORE_PATH, etc.)
+load_dotenv()
 
-# Chunk size (in words) for splitting documents
-CHUNK_SIZE = 500
-CHUNK_OVERLAP = 50
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--vectorstore-path",
+    default=None,
+    help="Path to save FAISS vectorstore (overrides env var VECTORSTORE_PATH)"
+)
+parser.add_argument(
+    "--docs-dir",
+    default=None,
+    help="Directory containing documents (overrides env var DOCS_DIR)"
+)
+args = parser.parse_args()
+
+# Use CLI args if provided, else fallback to env vars, else default
+DOCS_DIR = Path(args.docs_dir or os.getenv("DOCS_DIR", "/app/docs"))
+VECTORSTORE_PATH = Path(args.vectorstore_path or os.getenv("VECTORSTORE_PATH", "/app/vectorstore"))
 
 def load_pdf(file_path):
     text = ""
@@ -28,22 +43,23 @@ def load_txt(file_path):
     with open(file_path, "r", encoding="utf-8") as f:
         return f.read()
 
-def chunk_text(text, chunk_size=CHUNK_SIZE, overlap=CHUNK_OVERLAP):
-    words = text.split()
-    chunks = []
-    i = 0
-    while i < len(words):
-        chunk = words[i:i + chunk_size]
-        chunks.append(" ".join(chunk))
-        i += chunk_size - overlap
-    return chunks
+
+# Make sure directories exist
+DOCS_DIR.mkdir(parents=True, exist_ok=True)
+VECTORSTORE_PATH.mkdir(parents=True, exist_ok=True)
 
 def main():
-    # Initialize vectorstore
+    print(f"Loading documents from: {DOCS_DIR}")
+    print(f"Saving vectorstore to: {VECTORSTORE_PATH}")
+
     vectorstore = VectorStore(str(VECTORSTORE_PATH))
 
-    # Loop over files in docs
-    for file in DOCS_DIR.iterdir():
+    doc_files = list(DOCS_DIR.iterdir())
+    if not doc_files:
+        print("⚠️ No documents found in the docs directory. Exiting.")
+        return
+
+    for file in doc_files:
         if file.suffix.lower() == ".pdf":
             text = load_pdf(file)
         elif file.suffix.lower() == ".docx":
@@ -58,19 +74,17 @@ def main():
         embeddings = embed_texts(chunks)
 
         for i, embedding in enumerate(embeddings):
-            # store with metadata
             metadata = {
-                "source": str(file),
+                "source": str(file.name),
                 "chunk_index": i,
                 "text": chunks[i]
             }
             vectorstore.add_vector(embedding, metadata)
 
-        print(f"Processed {file.name} into {len(chunks)} chunks.")
+        print(f"✅ Processed {file.name} into {len(chunks)} chunks.")
 
-    # Save vectorstore
     vectorstore.save()
-    print("Vectorstore saved at:", VECTORSTORE_PATH)
+    print(f"✅ Vectorstore saved at: {VECTORSTORE_PATH}")
 
 if __name__ == "__main__":
     main()

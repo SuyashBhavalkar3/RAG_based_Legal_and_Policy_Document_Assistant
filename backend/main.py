@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 from openai import OpenAI
 from embeddings import embed_text, embed_texts
-from preload_docs import chunk_text
+from utils import chunk_text
 from vectorstore import VectorStore
 from pathlib import Path
 from PyPDF2 import PdfReader
@@ -40,7 +40,10 @@ app.include_router(conversation_router)
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # Persistent FAISS for preloaded legal corpus
-VECTORSTORE_PATH = Path("vectorstore")  # Mount persistent disk on Render
+VECTORSTORE_PATH = Path(
+    os.getenv("VECTORSTORE_PATH", "vectorstore")
+)
+
 vectorstore = None  # Will be initialized on startup
 
 # ------------------------------
@@ -344,4 +347,4 @@ async def ask_pdf_with_history(
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
-    uvicorn.run("drowsiness:app", host="0.0.0.0", port=port)
+    uvicorn.run("main:app", host="0.0.0.0", port=port)

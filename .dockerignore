@@ -56,20 +56,3 @@ Thumbs.db
 backend/users.db
 backend/legal_rag.db
 backend/*.db
-
-
-# Data & runtime
-backend/data/
-backend/data/*
-backend/data/**
-
-# HuggingFace cache
-hf_cache/
-**/hf_cache/
-
-# Vectorstore / FAISS
-vectorstore/
-**/vectorstore/
-
-# Docker
-*.log
