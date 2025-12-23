@@ -44,7 +44,7 @@ VECTORSTORE_PATH = Path(
     os.getenv("VECTORSTORE_PATH", "vectorstore")
 )
 
-vectorstore = "data/vectorstore/index.faiss"  # Will be initialized on startup
+vectorstore = None  # Will be initialized on startup
 
 # ------------------------------
 # Pydantic Schemas
@@ -170,9 +170,14 @@ def create_tables():
 # Startup Event
 # ------------------------------
 @app.on_event("startup")
-def startup_event():
-    hello = "Starting up Legal & Policy Assistant API..."
-    print(hello)
+def startup_load():
+    global vectorstore
+    vectorstore = VectorStore(str(VECTORSTORE_PATH))
+    if vectorstore.index.ntotal == 0:
+        print("⚠️ Warning: FAISS index is empty")
+    else:
+        print("✅ FAISS index loaded successfully")
+
 # ------------------------------
 # Endpoints
 # ------------------------------
