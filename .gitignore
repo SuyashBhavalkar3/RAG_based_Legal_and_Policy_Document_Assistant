@@ -58,18 +58,20 @@ backend/legal_rag.db
 backend/*.db
 
 
+# =========================
 # Data & runtime
+# =========================
 backend/data/
 backend/data/*
-backend/data/**
+
+# ✅ Allow vectorstore inside data
+!backend/data/vectorstore/
+!backend/data/vectorstore/**
 
 # HuggingFace cache
 hf_cache/
 **/hf_cache/
 
-# Vectorstore / FAISS
+# Vectorstore outside data (if any)
 vectorstore/
 **/vectorstore/
-
-# Docker
-*.log

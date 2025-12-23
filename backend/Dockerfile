@@ -11,7 +11,8 @@ ENV PYTHONUNBUFFERED=1 \
     PORT=8000 \
     HOST=0.0.0.0 \
     VECTORSTORE_PATH=/app/data/vectorstore \
-    DOCS_DIR=/app/data/docs
+    DOCS_DIR=/app/data/docs \
+    HF_HOME=/app/data/hf_cache
 
 # ---------- System Dependencies ----------
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -36,7 +37,7 @@ RUN python -m pip install --upgrade pip \
 COPY . .
 
 # ---------- Create Folders ----------
-RUN mkdir -p /app/data/vectorstore /app/data/docs
+RUN mkdir -p /app/data/vectorstore /app/data/docs /app/data/hf_cache
 
 # ---------- Non-root User ----------
 RUN addgroup --system app \
@@ -45,7 +46,5 @@ RUN addgroup --system app \
 
 USER app
 
-# ---------- Preload documents at container start ----------
-# This runs preload_docs.py before starting FastAPI
-ENTRYPOINT ["/usr/bin/tini", "--", "sh", "-c"]
-CMD ["python preload_docs.py --docs-dir $DOCS_DIR --vectorstore-path $VECTORSTORE_PATH && uvicorn main:app --host $HOST --port $PORT"]
+# ---------- Runtime ----------
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
