@@ -2,6 +2,8 @@
 
 A source-grounded Retrieval-Augmented Generation assistant for legal and policy documents — web UI (React + Supabase auth) and a FastAPI backend with local FAISS vector store and OpenAI for answer synthesis.
 
+**Note:** The backend is not hosted (the project backend is intended to run locally). This repo's backend is not deployed to Render due to Render's free-tier memory limits which prevented reliable hosting in our tests.
+
 ## Problem
 Legal and policy documents are large, domain-specific, and frequently updated. Generic LLM answers lack provenance and precise grounding. This project provides short, source-grounded answers with document-level context and per-conversation history to produce reliable responses for non-expert users.
 
@@ -134,3 +136,12 @@ Frontend (.env local / Vite)
 
 ## Not boilerplate
 This repository implements a focused RAG pipeline with conversation state, PDF-on-the-fly FAISS indexing, and JWT-protected endpoints wired end-to-end (frontend <> backend <> FAISS <> OpenAI). The code is application-specific — not a generic scaffold.
+
+## Media
+Below are the images included in the `media/` folder for reference and UI previews:
+
+![1.png](media/1.png)
+
+![2.png](media/2.png)
+
+![3.png](media/3.png)
